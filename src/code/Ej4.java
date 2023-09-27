@@ -37,7 +37,7 @@ public class Ej4 {
                         System.out.print("Introduce una frase ('fin' para terminar): ");
                         mensaje = sc.nextLine() + "\n";
                         // Forma simplificada de escribir en un fichero
-                        Files.write(p, mensaje.getBytes(), StandardOpenOption.APPEND);
+                        Files.write(p, mensaje.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.APPEND);
                     } while (!Objects.equals(mensaje, "fin\n"));
 
                     // leemos el archivo

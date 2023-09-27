@@ -20,46 +20,41 @@ public class Ej10 {
         Path rutaOrigen = Path.of(rutaOrigenString);
         leer(rutaOrigen);
     }
-    public static void leer(Path p){
+
+    public static void leer(Path p) {
 
         if (Files.exists(p)) {
             if (p.toString().endsWith(".txt")) {
                 try {
-                    List<String> contenido = Files.readAllLines(p);
-                    String linea;
+                    // leo todas las lineas del fichero
+                    List<String> lineas = Files.readAllLines(p);
+                    // creo un map para guardar los caracteres
                     HashMap<Character, Integer> mapCaracteres = new HashMap<>();
-
-                    for (String cont : contenido) {
-                        while ((linea = String.valueOf(cont)) != null) {
-                            for (char caracter : linea.toCharArray()) {
-                                // verifico si el caracter es un caracter ASCII mirando si su valor numerico esta entero
-                                if (caracter <= 127) {
-                                    //si el map contiene un caracter entre 0 y 127
-                                    if (mapCaracteres.containsKey(caracter)) {
-                                        //guardo en el map el caracter como clave y el siguiente caracter como valor.
-                                        mapCaracteres.put(caracter, mapCaracteres.get(caracter) + 1);
-                                    } else {
-                                        mapCaracteres.put(caracter, 1);
-                                    }
+                    // itero sobre las lineas del fichero
+                    for (String linea : lineas) {
+                        // itero sobre cada caracter
+                        for (char caracter : linea.toCharArray()) {
+                            // compruebo que el caracter esta entre 0 y 127
+                            if (caracter <= 127) {
+                                if (mapCaracteres.containsKey(caracter)) {
+                                    // si ya existe el caracter aumenta el contador en 1
+                                    mapCaracteres.put(caracter, mapCaracteres.get(caracter) + 1);
+                                } else {
+                                    // si no existe lo añado comenzando en 1
+                                    mapCaracteres.put(caracter, 1);
                                 }
                             }
                         }
                     }
 
-                    // itero el mapa para sacar el numero de repeticiones de cada caracter
-                    System.out.println("Caracter | Numero de repeticiones");
+                    System.out.println("Carácter | Número de repeticiones");
                     for (char caracter : mapCaracteres.keySet()) {
                         int repeticiones = mapCaracteres.get(caracter);
                         System.out.println(caracter + "       | " + repeticiones);
                     }
-
-                } catch (SecurityException e) {
-                    System.err.println("No tiene permiso de lectura: " + e.getMessage());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    System.err.println("Error al leer el archivo: " + e.getMessage());
                 }
-            } else {
-                System.out.println("No es un archivo de texto");
             }
         } else {
             // Si el archivo no existe, lo creamos
@@ -74,3 +69,4 @@ public class Ej10 {
         }
     }
 }
+
