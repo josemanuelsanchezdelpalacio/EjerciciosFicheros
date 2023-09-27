@@ -2,13 +2,16 @@ package code;
 
 import libs.Leer;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Ej10 {
 
@@ -22,28 +25,34 @@ public class Ej10 {
         if (Files.exists(p)) {
             if (p.toString().endsWith(".txt")) {
                 try {
+                    List<String> contenido = Files.readAllLines(p);
+                    String linea;
+                    HashMap<Character, Integer> mapCaracteres = new HashMap<>();
 
-                    String linea = "";
-                    char caracter = 0;
-                    //creo un hashmap con una clave como char y un valor como integer
-                    HashMap<Character, Integer> mapLineas = new HashMap<>();
-                    Files.readAllLines(p).forEach(linea.charAt(caracter));
-
-                    // comprobamos si los caracteres estan en el hashmap
-                    if (mapLineas.containsKey(caracter)) {
-                        // si aparece el caracter le sumamos 1 y lo añadimos
-                        mapLineas.put(caracter, mapLineas.get(caracter) + 1);
-                    } else {
-                        mapLineas.put(caracter, 1);
+                    for (String cont : contenido) {
+                        while ((linea = String.valueOf(cont)) != null) {
+                            for (char caracter : linea.toCharArray()) {
+                                // verifico si el caracter es un caracter ASCII mirando si su valor numerico esta entero
+                                if (caracter <= 127) {
+                                    //si el map contiene un caracter entre 0 y 127
+                                    if (mapCaracteres.containsKey(caracter)) {
+                                        //guardo en el map el caracter como clave y el siguiente caracter como valor.
+                                        mapCaracteres.put(caracter, mapCaracteres.get(caracter) + 1);
+                                    } else {
+                                        mapCaracteres.put(caracter, 1);
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    System.out.println("letra | numero repeticiones");
-                    // recorremos el hashmap
-                    for (char letra : mapLineas.keySet()) {
-                        char clave = letra;
-                        int cont_letra = mapLineas.get(letra);
-                        System.out.print(clave + "     | " + cont_letra + "\n");
+                    // itero el mapa para sacar el numero de repeticiones de cada caracter
+                    System.out.println("Caracter | Numero de repeticiones");
+                    for (char caracter : mapCaracteres.keySet()) {
+                        int repeticiones = mapCaracteres.get(caracter);
+                        System.out.println(caracter + "       | " + repeticiones);
                     }
+
                 } catch (SecurityException e) {
                     System.err.println("No tiene permiso de lectura: " + e.getMessage());
                 } catch (IOException e) {
@@ -64,5 +73,4 @@ public class Ej10 {
             }
         }
     }
-
 }
