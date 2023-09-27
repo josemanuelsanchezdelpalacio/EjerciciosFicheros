@@ -8,12 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 
-/*EJERCICIO 4
-Escribe un programa Java que pida una serie de frases por teclado hasta que se inserte como
-frase la palabra “fin”. Dichas frases deberán guardarse en un fichero de texto. A continuación,
-el programa visualizará el contenido del fichero, frase por frase. Cada vez que se ejecute el
-programa, se tienen que descartar las frases que ya estaban escritas en el fichero. Realiza este
-ejercicio sin usar la clase BufferedReader.
+/*
 EJERCICIO 5
 Modifica el programa Java anterior, de tal forma que cada vez que se ejecute el programa,
 vaya añadiendo las nuevas frases introducidas al final del fichero de texto.
@@ -28,9 +23,10 @@ public class Ej5 {
 
     public static void pedirFrases(Path p) {
         String mensaje;
-        try (Scanner sc = new Scanner(System.in)) {
+        try {
             // Verificamos si el archivo ya existe
             boolean archivoExiste = Files.exists(p);
+            Scanner sc = new Scanner(System.in);
 
             if (archivoExiste) {
                 // Si el archivo ya existe, obtenemos su tamaño
@@ -45,7 +41,6 @@ public class Ej5 {
             do {
                 System.out.print("Introduce una frase ('fin' para terminar): ");
                 mensaje = sc.nextLine();
-
                 Files.write(p, (mensaje + "\n").getBytes(), StandardOpenOption.APPEND);
 
             } while (!mensaje.equalsIgnoreCase("fin"));
