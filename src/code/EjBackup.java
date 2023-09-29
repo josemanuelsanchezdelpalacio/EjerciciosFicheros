@@ -42,6 +42,8 @@ public class EjBackup {
                     }
                 }
             }
+        } catch (SecurityException e) {
+            System.err.println("No tiene permiso de lectura: " + e.getMessage());
         } catch (IOException e) {
             System.err.println("Error al copiar el backup: " + e.getMessage());
         }
