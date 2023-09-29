@@ -3,6 +3,7 @@ import libs.Leer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
@@ -16,7 +17,7 @@ public class EjBackup {
         copiaBuckUp(rutaOrigen, rutaDestino);
     }
     public static void buckUpIncremental() {
-        SimpleDateFormat formatoDate = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        SimpleDateFormat formatoDate = new SimpleDateFormat("yy.MM.dd_HH.mm.ss");
         String date = formatoDate.format(new Date());
 
         String rutaOrigenString = Leer.pedirCadena("Introduce ruta archivo original: ");
