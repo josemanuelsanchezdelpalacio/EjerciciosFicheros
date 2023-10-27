@@ -11,10 +11,8 @@ import java.util.stream.Stream;
 public class EjBackupNIO {
 
     public static void buckUpTotalNio() {
-        String rutaOrigenString = Leer.pedirCadena("Introduce ruta archivo original: ");
-        Path rutaOrigen = Path.of(rutaOrigenString);
-        String rutaDestinoString = Leer.pedirCadena("Introduce ruta archivo destino: ");
-        Path rutaDestino = Path.of(rutaDestinoString);
+        Path rutaOrigen = Path.of(Leer.pedirCadena("Introduce ruta archivo original: "));
+        Path rutaDestino = Path.of(Leer.pedirCadena("Introduce ruta archivo destino: "));
         copiaCompleta(rutaOrigen, rutaDestino);
     }
 
@@ -61,15 +59,16 @@ public class EjBackupNIO {
         //DirectoryStream<Path> es un objeto para iterar sobre un directorio y asi poder usar un for:each
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(po)) {
             // itero sobre los archivos en la carpeta de origen
+            Path ultimaCopia = null;
             for (Path archivo : stream) {
                 Path archivoOriginal = po.resolve(archivo.getFileName());
                 Path destinoArchivo = pd.resolve(archivo.getFileName());
 
-                // compruebo si el archivo es nuevo desde la última copia total
-                if (Files.notExists(destinoArchivo) || Files.getLastModifiedTime(archivoOriginal).compareTo(Files.getLastModifiedTime(destinoArchivo)) > 0) {
+                if (ultimaCopia == null || Files.getLastModifiedTime(archivoOriginal).compareTo(Files.getLastModifiedTime(destinoArchivo)) > 0) {
+                    ultimaCopia = archivo;
                     Files.copy(archivoOriginal, destinoArchivo, StandardCopyOption.REPLACE_EXISTING);
                 } else {
-                    System.out.println("El archivo '" + archivo.getFileName() + "' ya existe o no ha sido modificado en backups anteriores");
+                    System.out.println("El archivo '" + archivo.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
                 }
             }
         } catch (SecurityException e) {
