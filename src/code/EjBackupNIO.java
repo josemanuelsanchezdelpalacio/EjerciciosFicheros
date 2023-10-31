@@ -5,7 +5,9 @@ import libs.Leer;
 import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class EjBackupNIO {
@@ -21,9 +23,10 @@ public class EjBackupNIO {
         String date = formatoDate.format(new Date());
 
         Path rutaOrigen = Path.of(Leer.pedirCadena("Introduce ruta carpeta original: "));
-        Path rutaDestino = Path.of(Leer.pedirCadena("Introduce ruta carpeta de backup incremental: ") + "/" + date);
+        Path rutaTotal = Path.of(Leer.pedirCadena("Introduce ruta carpeta del total: "));
+        Path rutaDestino = Path.of("src/resources/incre" + "/" + date);
 
-        copiaIncremental(rutaOrigen, rutaDestino);
+        copiaIncremental(rutaOrigen, rutaTotal, rutaDestino);
     }
 
     public static void copiaCompleta(Path po, Path pd) {
@@ -47,7 +50,7 @@ public class EjBackupNIO {
         }
     }
 
-    public static void copiaIncremental(Path po, Path pd) {
+    public static void copiaIncremental(Path po, Path pd, Path pc) {
         //creo la carpeta de destino si no existe
         if (Files.notExists(pd)) {
             try {
@@ -56,17 +59,13 @@ public class EjBackupNIO {
                 System.err.println("Error al crear el directorio de destino");
             }
         }
-        //DirectoryStream<Path> es un objeto para iterar sobre un directorio y asi poder usar un for:each
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(po)) {
-            // itero sobre los archivos en la carpeta de origen
-            Path ultimaCopia = null;
-            for (Path archivo : stream) {
-                Path archivoOriginal = po.resolve(archivo.getFileName());
-                Path destinoArchivo = pd.resolve(archivo.getFileName());
 
-                if (ultimaCopia == null || Files.getLastModifiedTime(archivoOriginal).compareTo(Files.getLastModifiedTime(destinoArchivo)) > 0) {
-                    ultimaCopia = archivo;
-                    Files.copy(archivoOriginal, destinoArchivo, StandardCopyOption.REPLACE_EXISTING);
+        //DirectoryStream<Path> es un objeto para iterar sobre un directorio y asi poder usar un for:each
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pd)) {
+            // itero sobre los archivos en la carpeta de origen y hago una copia total
+            for (Path archivo : stream) {
+                if (Files.getLastModifiedTime(archivo).compareTo(Files.getLastModifiedTime(pd)) > 0) {
+                    Files.copy(archivo, pc, StandardCopyOption.REPLACE_EXISTING);
                 } else {
                     System.out.println("El archivo '" + archivo.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
                 }
@@ -74,7 +73,7 @@ public class EjBackupNIO {
         } catch (SecurityException e) {
             System.err.println("No tiene permiso de lectura: " + e.getMessage());
         } catch (IOException e) {
-            System.err.println("Error al copiar el backup: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
