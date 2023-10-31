@@ -28,7 +28,6 @@ public class EjBackupNIO {
 
         copiaIncremental(rutaOrigen, rutaTotal, rutaDestino);
     }
-
     public static void copiaCompleta(Path po, Path pd) {
         //creo la carpeta de destino si no existe
         if (Files.notExists(pd)) {
@@ -50,8 +49,8 @@ public class EjBackupNIO {
         }
     }
 
-    public static void copiaIncremental(Path po, Path pd, Path pc) {
-        //creo la carpeta de destino si no existe
+    public static void copiaIncremental(Path po, Path pc, Path pd) {
+        // Creo la carpeta de destino si no existe
         if (Files.notExists(pd)) {
             try {
                 Files.createDirectories(pd);
@@ -60,20 +59,23 @@ public class EjBackupNIO {
             }
         }
 
-        //DirectoryStream<Path> es un objeto para iterar sobre un directorio y asi poder usar un for:each
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pd)) {
-            // itero sobre los archivos en la carpeta de origen y hago una copia total
-            for (Path archivo : stream) {
-                if (Files.getLastModifiedTime(archivo).compareTo(Files.getLastModifiedTime(pd)) > 0) {
-                    Files.copy(archivo, pc, StandardCopyOption.REPLACE_EXISTING);
+        //listo los archivos completos
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pc)) {
+            for (Path pCompleto : stream) {
+                Path archivoCompleto = pc.relativize(pCompleto);
+                Path archivoIncremental = pd.resolve(archivoCompleto);
+                Path archivoOriginal = po.resolve(archivoCompleto);
+
+                //comparo el archivo original y el completo para comprobar si existe un nuevo archivo. Si existe lo copia, si no solo saca mensaje de los archivos que no han sido modificados
+                if (Files.getLastModifiedTime(archivoOriginal).compareTo(Files.getLastModifiedTime(pCompleto)) > 0) {
+                    // Copio el archivo desde la carpeta completa a la carpeta incremental
+                    Files.copy(pCompleto, archivoIncremental, StandardCopyOption.REPLACE_EXISTING);
                 } else {
-                    System.out.println("El archivo '" + archivo.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
+                    System.out.println("El archivo '" + archivoCompleto.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
                 }
             }
-        } catch (SecurityException e) {
-            System.err.println("No tiene permiso de lectura: " + e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error al realizar la copia incremental: " + e.getMessage());
         }
     }
 }
