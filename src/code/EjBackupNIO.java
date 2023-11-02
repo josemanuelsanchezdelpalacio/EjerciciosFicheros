@@ -50,7 +50,7 @@ public class EjBackupNIO {
     }
 
     public static void copiaIncremental(Path po, Path pc, Path pd) {
-        // Creo la carpeta de destino si no existe
+        //creo la carpeta de destino si no existe
         if (Files.notExists(pd)) {
             try {
                 Files.createDirectories(pd);
@@ -59,20 +59,20 @@ public class EjBackupNIO {
             }
         }
 
-        // Listo los archivos originales
+        //listo los archivos de la carpeta original
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(po)) {
             for (Path pOriginal : stream) {
-                Path archivoRelativo = po.relativize(pOriginal);
+                Path archivoRelativo = po.relativize(pOriginal); //si no va hazlo con resolve
                 Path archivoCompleto = pc.resolve(archivoRelativo);
                 Path archivoIncremental = pd.resolve(archivoRelativo);
 
-                // Comparo el archivo original y el completo para comprobar si existe un nuevo archivo.
+                //comparo el archivo original y el completo para comprobar si existe un nuevo archivo. Si no existe el archivo solo saca un mensaje de que no hay archivos nuevos
                 if (Files.exists(archivoCompleto) && Files.getLastModifiedTime(pOriginal).compareTo(Files.getLastModifiedTime(archivoCompleto)) <= 0) {
                     System.out.println("El archivo '" + archivoRelativo.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
                     continue;
                 }
 
-                // Copio el archivo desde la carpeta original a la carpeta incremental
+                //copio el archivo nuevo desde la carpeta original a la carpeta incremental
                 Files.copy(pOriginal, archivoIncremental, StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("Se ha copiado: " + archivoRelativo.getFileName());
             }
