@@ -53,7 +53,7 @@ public class EjBackup {
         }
     }
 
-    public static void copiaIncremental(File po, File pd) {
+        public static void copiaIncremental(File po, File pc, File pd) {
         try {
             //creo la carpeta de destino si no existe
             if (!pd.exists()) {
@@ -62,13 +62,11 @@ public class EjBackup {
                     File[] archivos = po.listFiles();
                     if (archivos != null) {
                         for (File archivo : archivos) {
-                            //si es un archivo hago la copia desde la ultima modificacion
-                            if (archivo.isFile()) {
-                                File destinoFile = new File(pd, archivo.getName());
-                                if (!destinoFile.exists() || archivo.lastModified() > destinoFile.lastModified()) {
-                                    copiarArchivo(archivo, destinoFile);
-                                }
-                            }
+                            //hago la copia desde la ultima modificacion
+                            File destinoFile = new File(pd, archivo.getName());
+                            if (!destinoFile.exists() || archivo.lastModified() > destinoFile.lastModified()) {
+                                copiarArchivo(archivo, destinoFile);
+                            }        
                         }
                     }
                 }
