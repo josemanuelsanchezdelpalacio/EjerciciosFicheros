@@ -59,20 +59,22 @@ public class EjBackupNIO {
             }
         }
 
-        //listo los archivos completos
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pc)) {
-            for (Path pCompleto : stream) {
-                Path archivoCompleto = pc.relativize(pCompleto);
-                Path archivoIncremental = pd.resolve(archivoCompleto);
-                Path archivoOriginal = po.resolve(archivoCompleto);
+        // Listo los archivos originales
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(po)) {
+            for (Path pOriginal : stream) {
+                Path archivoRelativo = po.relativize(pOriginal);
+                Path archivoCompleto = pc.resolve(archivoRelativo);
+                Path archivoIncremental = pd.resolve(archivoRelativo);
 
-                //comparo el archivo original y el completo para comprobar si existe un nuevo archivo. Si existe lo copia, si no solo saca mensaje de los archivos que no han sido modificados
-                if (Files.getLastModifiedTime(archivoOriginal).compareTo(Files.getLastModifiedTime(pCompleto)) > 0) {
-                    // Copio el archivo desde la carpeta completa a la carpeta incremental
-                    Files.copy(pCompleto, archivoIncremental, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    System.out.println("El archivo '" + archivoCompleto.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
+                // Comparo el archivo original y el completo para comprobar si existe un nuevo archivo.
+                if (Files.exists(archivoCompleto) && Files.getLastModifiedTime(pOriginal).compareTo(Files.getLastModifiedTime(archivoCompleto)) <= 0) {
+                    System.out.println("El archivo '" + archivoRelativo.getFileName() + "' ya existe o no ha sido modificado desde la última copia");
+                    continue;
                 }
+
+                // Copio el archivo desde la carpeta original a la carpeta incremental
+                Files.copy(pOriginal, archivoIncremental, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Se ha copiado: " + archivoRelativo.getFileName());
             }
         } catch (IOException e) {
             System.err.println("Error al realizar la copia incremental: " + e.getMessage());
