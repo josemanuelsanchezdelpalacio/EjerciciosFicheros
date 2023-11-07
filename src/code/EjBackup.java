@@ -53,7 +53,7 @@ public class EjBackup {
         }
     }
 
-        public static void copiaIncremental(File po, File pc, File pd) {
+        public static void copiaIncremental(File po, File pd) {
         try {
             //creo la carpeta de destino si no existe
             if (!pd.exists()) {
